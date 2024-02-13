@@ -1,8 +1,9 @@
 <!DOCTYPE html>
+
 <?php 
-
-/* Variaveis GLOBAIS*/
-
+/* Variaveis de Sessão */
+@session_start();
+require_once 'permissions.php';
 ?>
 
 <html lang="pt-br">
@@ -19,19 +20,40 @@
     </head>
     <body class="sb-nav-fixed">
         <!-- barra de navegação do topo -->
-    <?php include_once './views/header.php';?>
+    <?php include_once './includes/header.php';?>
         <div id="layoutSidenav">
                 <!-- Menu Lateral -->
             <div id="layoutSidenav_nav">
-                <?php include_once './views/sidebar.php';?>
+                <?php include_once './includes/sidebar.php';?>
             </div>
             <div id="layoutSidenav_content">
                     <!-- Conteúdo Principal ou Páginas Carregadas/Chamadas pelo index.php -->
-                    <?php include_once './pages/dashboard.php';?>
-                    <?php include_once './pages/usuarios.php';?>
+                    <main>
+                        <?php  
+                            // Verificar se foi passado o parâmetro 'pagina' na URL
+                            if (isset($_GET['pagina'])) {
+                                // Limpa o nome da página para evitar ataques de inclusão de arquivo
+                                $nome_do_menu = htmlspecialchars($_GET['pagina']);
+                                // Montar o nome do arquivo da página
+                                $arquivo_pagina = $nome_do_menu . '.php';
 
+                                // Verificar se o arquivo da página existe
+                                if (file_exists("./pages/{$arquivo_pagina}")) {
+                                    // Incluir dinamicamente a página solicitada
+                                    include_once "./pages/{$arquivo_pagina}";
+                                } else {
+                                    // Se a página não existir, exibir uma mensagem de erro
+                                    //echo "Página não encontrada.";
+                                    include_once "./pages/errors/401.php";
+                                }
+                            } else {
+                                // Se nenhum parâmetro 'pagina' for fornecido, incluir uma página padrão (por exemplo, dashboard)
+                                include_once "./pages/dashboard.php";
+                            }
+                        ?>
+                    </main>
                     <!-- rodapé das páginas -->
-                <?php include_once './views/footer.php';?>
+                <?php include_once './includes/footer.php';?>
             </div>
         </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
